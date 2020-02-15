@@ -1,73 +1,215 @@
 <template>
   <div id="app">
-    <!-- <div id="nav"> 
-      <router-link to="/">Home</router-link> |
-      <router-link to="/tracks">Tracks</router-link> |
-      <router-link to="/albums">Albums</router-link> |
-      <router-link to="/artists">Artists</router-link>
-    </div> -->
-    <section class="hero is-warning">
-  <!-- Hero head: will stick at the top -->
-  <div class="hero-head">
-    <header class="navbar">
-      <div class="container">
-        <div class="navbar-brand">
-          <a class="navbar-item">
-            <img src="../public/music.png" alt="Logo">
-          </a>
-          <span class="navbar" data-target="navbarMenuHeroC">
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-        </div>
-        <div id="navbarMenuHeroC" class="navbar-menu">
-          <div class="navbar-start">
-            <a class="navbar-item is-active">
-              <router-link to="/">Home</router-link>
-            </a>
-            <a class="navbar-item">
-              <router-link to="/tracks">Tracks</router-link>
-            </a>
-            <a class="navbar-item">
-              <router-link to="/albums">Albums</router-link>
-            </a>
-            <a class="navbar-item">
-              <router-link to="/artists">Artists</router-link>
-            </a>
-            
-          </div>
-        </div>
-      </div>
+    
+    <header>
+      <h1>Musixx App</h1>
     </header>
+      
+    <main>
+      <section class="player">
+        <h2 class="song-title">{{ current.title}} - <span>{{ current.artist }}</span></h2>
+        <div class="controls">
+
+          <button class="prev" @click="prev">
+            <i class="mdi mdi-24px mdi-skip-previous"></i>
+          </button>
+
+          <button class="play" v-if="!isPlaying" @click="play">
+            <i class="mdi mdi-48px mdi-play-circle-outline"></i>
+          </button>
+
+          <button class="pause" v-else @click="pause">
+            <i class="mdi mdi-48px mdi-pause-circle-outline"></i>
+          </button>
+
+          <button class="next" @click="next">
+            <i class="mdi mdi-24px mdi-skip-next"></i>
+          </button>
+        </div>
+        
+      </section>
+      <section class="playlist">
+        <h3>The Playlist</h3>
+        <button v-for="song in songs" :key="song.src" @click="play(song)" 
+        :class="(song.src == current.src) ? 'song playing' : 'song'">
+        {{ song.title }} - {{ song.artist }}
+        </button>
+      </section>
+    </main>
   </div>
 
-</section>
-    <router-view/>
-  </div>
-    
- 
 </template>
+<script>
+export default {
+  name:'app',
+  data () {
+    return{
+      current:{},
+      index: 0,
+      isPlaying: false,
+      songs: [
+        {
+          title: 'Queen of Disaster',
+          artist: 'Lana Del Rey',
+          src: require('./assets/Queen of Disaster.mp3')
+        },
+        {
+          title: 'Summertime Sadness',
+          artist: 'Lana del Rey',
+          src: require('./assets/Summertime Sadness.mp3')
+        },
+        {
+          title: 'Taxi Cab',
+          artist: 'Twenty One Pilots',
+          src: require('./assets/Taxi Cab.mp3')
+        },
+        {
+          title: 'On My Own',
+          artist: 'TroyBoi',
+          src: require('./assets/On My Own.mp3')
+        }
+
+
+      ],
+      player: new Audio()
+    }
+  },
+  methods:{
+    play (song){
+      if (typeof song.src != "undefined"){
+        this.current = song;
+        this.player.src = this.current.src;
+      }
+      this.player.play();
+      this.isPlaying = true;
+    },
+    pause (){
+      this.player.pause();
+      this.isPlaying = false;
+    },
+    next (){
+      this.index++;
+      if (this.index > this.songs.length -1){
+        this.index = 0;
+      }
+      this.current = this.songs[this.index];
+      this.play(this.current);
+    },
+    prev (){
+      this.index--;
+      if (this.index < 0){
+        this.index = this.songs.length - 1;
+      }
+      this.current = this.songs[this.index];
+      this.play(this.current);
+    }
+
+  },
+  created (){
+    this.current = this.songs[this.index];
+    this.player.src = this.current.src;
+  }
+}
+</script>
+
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: black;
-}
+  *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body{
+    font-family: sans-serif;
+  }
+  header{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 15px;
+    background-color: #212121;
+    color: #FFF;
+    font-size: 20px;
+    text-transform: uppercase;
+  }
+  main{
+    width: 100%;
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 25px;
 
-#nav {
-  padding: 30px;
-}
+  }
+  .song-title{
+    color: #53565a;
+    font-size: 32px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .song-title span{
+    font-weight: 400;
+    font-style: italic;
+  }
+  .controls{
+    display: flex;
+    justify-content: center;
+    padding:  30px 15px;
+    align-items: center;
+  }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+  button{
+    appearance: none;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+  }
+  button:hover{
+    opacity:0.8;
+  }
 
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
+
+  .play, .pause{
+    padding: 15px 25px;
+    margin: 0px 15px;
+    color:#FFF;
+    background-color: #212121;
+    border-radius: 8px;
+
+  }
+  .next, .prev{
+    padding: 10px 20px;
+    margin: 0px 15px;
+    color:#FFF;
+    background-color: #b38600;
+    border-radius: 6px;
+  }
+  
+  .playlist{
+    padding: 0px 30px;
+
+  }
+  .playlist h3{
+    color:#212121;
+    font-size:20px;
+    font-weight: 400;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  .playlist .song{
+    display: block;
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    font-weight: 700;
+    cursor:pointer;
+  }
+  .playlist .song.playing{
+    color:#FFF;
+    background-image: linear-gradient(to right, #212121, #b38600);
+    border-radius:8px;
+  }
+
+
+
 </style>
